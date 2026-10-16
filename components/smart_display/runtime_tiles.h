@@ -7516,12 +7516,14 @@ inline void set_loading(Widgets &w,bool on,int width,int height){
 // a strip at the bottom, so a tap anywhere else still does what a tap on the tile does. The built-in cards
 // (clock, forecast, sun path) simply get the whole page.
 // A media player over the whole page (firmware 0.2.64+): the head as on every full card, and under it the media card
-// itself, wide: the cover at the left, the track, the bar and the keys beside it, the volume row along the bottom.
+// itself, laid out by media_card::layout() like the card a tap opens: the cover on top and the words, bar, keys and
+// volume row centred under it in a tall area, the cover at the left of a column in a wide one.
 // Parts: 0 placeholder, 1 its icon, 2 title, 3 artist, 4 track, 5 fill, 6 elapsed, 7 total, 8-10 keys, 11 volume
-// down, 12 slider, 13 volume up (firmware 0.39.0; a mute key and the percentage before), MEDIA_PICTURE (14) the cover. Built once per slot and moved on every redraw.
+// down, 12 slider, 13 volume up (firmware 0.39.0; a mute key and the percentage before), MEDIA_PICTURE (14) the cover,
+// 15 shuffle, 16 repeat, 17 the dot under shuffle. Built once per slot and moved on every redraw.
 inline void media_tile_key_event(lv_event_t *e){
   unsigned code=(uintptr_t)lv_event_get_user_data(e);unsigned slot=code/16,n=code%16;
-  if(slot>=widgets.size() || n>2)return;
+  if(slot>=widgets.size() || n>4)return;
   auto &w=widgets[slot];
   if(!enabled || !fresh() || w.index>=model.count || w.extra_mode!="media")return;
   if(lv_obj_has_state(lv_event_get_target_obj(e),LV_STATE_DISABLED))return;
@@ -7530,7 +7532,7 @@ inline void media_tile_key_event(lv_event_t *e){
   // Play or pause is a wish; the track keys are not.
   if(!(n==1&&!media_off(t)?allowed_wish(now,500+slot*16+n,"media key "+std::to_string(slot)):allowed(now,500+slot*16+n,"media key "+std::to_string(slot))))return;
   if(!t.available() || t.waiting(now))return;
-  static const int commands[]={21,20,22};
+  static const int commands[]={21,20,22,25,26};  // previous, play or pause, next, shuffle, repeat (media_action)
   media_action(t,n==1 && media_off(t)?24:commands[n]);
 }
 inline void render_media_full(Widgets &w,const Tile &t,bool big,int content_w,int content_h,int head_h){
@@ -7580,9 +7582,10 @@ inline void render_media_full(Widgets &w,const Tile &t,bool big,int content_w,in
       w.cover_shown.clear();w.cover_hold=0;
     }
   }
-  // Title, artist · album, left-aligned beside the cover, in the middle without one.
+  // Title, artist · album, as the card sets them: in the middle under the cover of a tall area, at the
+  // left beside it where the cover stands at the left (l.wide).
   const lv_font_t *title_font=watch_font?watch_font:w.title_font,*artist_font=control_font?control_font:w.title_font,*small=small_font?small_font:w.title_font;
-  const lv_text_align_t words_align=m.art?LV_TEXT_ALIGN_LEFT:LV_TEXT_ALIGN_CENTER;
+  const lv_text_align_t words_align=l.wide?LV_TEXT_ALIGN_LEFT:LV_TEXT_ALIGN_CENTER;
   auto text=[&](unsigned i,const lv_font_t *font,const Rect &r,lv_text_align_t align,const std::string &value,theme::Role role){
     auto *p=part_label(w,i,font,r.x,r.y+top,r.w,align,value);lv_label_set_long_mode(p,LV_LABEL_LONG_DOT);set_color(p,LV_STYLE_TEXT_COLOR,theme::color(role));lv_obj_remove_flag(p,LV_OBJ_FLAG_HIDDEN);return p;
   };
@@ -7623,6 +7626,22 @@ inline void render_media_full(Widgets &w,const Tile &t,bool big,int content_w,in
     show(9,true);
   }
   show(8,!off);show(10,!off);
+  // Shuffle and repeat at the ends of the keys' row, as on the card (parts 15 to 17): shuffle on is the accent with a dot
+  // under it, repeat all and one the accent (one with its own glyph), off the muted ink. Only where the player has them.
+  const uint32_t had=f|x.media_features;
+  const bool has_shuffle=!off&&l.sides&&x.media_shuffle>=0&&(had&feature::MEDIA_SHUFFLE),has_repeat=!off&&l.sides&&!x.media_repeat.empty()&&(had&feature::MEDIA_REPEAT);
+  if(has_shuffle){
+    w.parts[15]=media_key(w.extra,w.parts[15],at(l.shuffle),"\U000F049F",key_font,false,true,can(feature::MEDIA_SHUFFLE),media_tile_key_event,user(3));
+    set_color(lv_obj_get_child(w.parts[15],0),LV_STYLE_TEXT_COLOR,x.media_shuffle==1?theme::rgb(media_accent()):theme::color(theme::MUTED));
+    const int d=ui::px(big?5:4);
+    w.parts[17]=media_box(w.extra,w.parts[17],Rect{at(l.shuffle).cx()-d/2,at(l.shuffle).bottom()+ui::px(2),d,d},media_accent(),LV_RADIUS_CIRCLE);
+    show(17,x.media_shuffle==1);
+  }else if(w.parts[17])lv_obj_add_flag(w.parts[17],LV_OBJ_FLAG_HIDDEN);
+  if(has_repeat){
+    w.parts[16]=media_key(w.extra,w.parts[16],at(l.repeat),x.media_repeat=="one"?"\U000F0458":"\U000F0456",key_font,false,true,can(feature::MEDIA_REPEAT),media_tile_key_event,user(4));
+    set_color(lv_obj_get_child(w.parts[16],0),LV_STYLE_TEXT_COLOR,x.media_repeat!="off"?theme::rgb(media_accent()):theme::color(theme::MUTED));
+  }
+  show(15,has_shuffle);show(16,has_repeat);
   if(volume)media_volume_row(w.extra,&w.parts[11],at(l.minus),at(l.volume),at(l.plus),t,big,usable,(void*)(uintptr_t)w.index,false,key_font);
   show(11,volume);show(12,volume);show(13,volume);
 }
