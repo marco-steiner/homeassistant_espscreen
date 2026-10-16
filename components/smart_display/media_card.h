@@ -42,6 +42,7 @@ struct Rect {
 struct Metrics {
   bool large = true;   // the Guition: big keys and a big cover; the CYD gets the small numbers
   bool art = true;     // the board draws pictures, so the card has a place for the cover (above)
+  bool snug = false;   // gaps at half: the tile over the whole page, where the cover takes what the gaps give back
   int clock_w = 0;     // the widest time beside the bar as the small font writes it ("1:02:45"), 0 for time_w()
   int title_h = 32;    // the title's font (the card heading font)
   int artist_h = 25;   // the artist line (the control font)
@@ -100,7 +101,7 @@ inline int radius_for(int art) { return std::max(4, art / 12); }
 // `volume_h` tall (layout() below chooses).
 inline Layout layout_with(const Metrics &m, int width, int height, int ends, int volume_h) {
   Layout l;
-  const int g = m.gap(), margin = m.margin();
+  const int g = m.snug ? m.gap() / 2 : m.gap(), margin = m.margin();
   // The volume row along the bottom, whatever the form: a slider is dragged, so it never runs wider than a hand
   // spans, and on wider glass it stands in the middle.
   const int row_w = std::min(width - 2 * margin, m.reach()), row_x = (width - row_w) / 2, row_y = height - volume_h;

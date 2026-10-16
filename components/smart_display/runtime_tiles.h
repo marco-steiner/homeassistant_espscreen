@@ -7539,7 +7539,8 @@ inline void render_media_full(Widgets &w,const Tile &t,bool big,int content_w,in
   using namespace media_card;
   using namespace tile_controls;
   const auto &x=t.extra();
-  const Metrics m=media_metrics(big,x.media_duration);
+  Metrics m=media_metrics(big,x.media_duration);
+  m.snug=true;  // the cover takes what half the gaps give back; the card a tap opens keeps its own
   const int top=head_h+(ui::px(big?8:4));
   const Layout l=layout(m,content_w,std::max(40,content_h-top-(ui::px(big?4:2))));
   begin_extra(w,"media",content_w,content_h);
@@ -8677,7 +8678,11 @@ inline void render_slot(size_t slot) {
   set_number(w.tile,LV_STYLE_BORDER_WIDTH,1);
   // "Background: none" hides only the card; geometry and padding stay identical, and the press still shows because
   // it lives on the PRESSED state: a shade of what the finger sees, the page there, the card everywhere else.
-  set_color(w.tile,LV_STYLE_BG_COLOR,lv_color_hex(theme::pressed(t.transparent ? theme::hex(theme::PAGE) : theme::surface(t.background))),LV_STATE_PRESSED);
+  // The media card over the whole page has no shade of its own when it is touched (its keys show their press): its pressed
+  // colour is the one it rests in, so nothing gets lighter under a finger.
+  const uint32_t resting=t.transparent ? theme::hex(theme::PAGE) : theme::surface(t.background);
+  const bool still=t.full && d=="media_player";
+  set_color(w.tile,LV_STYLE_BG_COLOR,lv_color_hex(still ? resting : theme::pressed(resting)),LV_STATE_PRESSED);
   set_number(w.tile,LV_STYLE_BG_OPA,t.transparent&&!letterboxed(w) ? LV_OPA_TRANSP : LV_OPA_COVER);
   set_number(w.tile,LV_STYLE_BORDER_OPA,t.transparent ? LV_OPA_TRANSP : LV_OPA_COVER);
   set_color(w.tile,LV_STYLE_BORDER_COLOR,lv_color_hex(theme::outline(t.background)));

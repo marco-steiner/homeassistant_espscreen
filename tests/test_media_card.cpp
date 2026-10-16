@@ -211,6 +211,11 @@ int main() {
   assert(std::string(idle_text("off")) == "Off" && std::string(idle_text("idle")) == "Not playing" && std::string(idle_text("standby")) == "Standby");
   assert(playing("playing") && playing("buffering") && !playing("paused"));
   assert(has_track("paused") && !has_track("idle") && !has_track("off"));
+  // A snug card (the tile over the whole page) has a bigger cover where the cover is what the height leaves, and is
+  // the same card otherwise.
+  { Metrics snug; snug.snug = true; const Layout a = layout(Metrics{}, 440, 400), b = layout(snug, 440, 400);
+    assert(!a.wide && !b.wide && b.art.w > a.art.w && b.art.w <= Metrics::cover_max() && b.play.bottom() <= b.minus.y);
+    const Layout c = layout(Metrics{}, 800, 400), d = layout(snug, 800, 400); assert(c.wide == d.wide); }
   printf("test_media_card: ok\n");
   return 0;
 }
