@@ -8193,7 +8193,12 @@ inline void render_full(Widgets &w,const Tile &t,bool custom,bool clock,bool sun
   head_h=std::max(head_h,std::max(head.circle_y+circle,head.value_y+value_h));
   if(media){
     hide_panel(w);lv_obj_add_flag(w.slider,LV_OBJ_FLAG_HIDDEN);
-    render_media_full(w,t,big,content_w,content_h,head_h);
+    // The card gets the whole tile, as the card a tap opens gets its whole area: with the head's rows taken off, a
+    // Guition's page is too short for media_card::layout() to stack the cover over the rest (it puts the cover at the
+    // left below 5:4), so the head (the circle, the name and the state) goes. Every render shows them again (set_hidden
+    // on title, value, circle and unit further down).
+    for(auto *o:{w.title,w.value,w.circle})set_hidden(o,true);
+    render_media_full(w,t,big,content_w,content_h,0);
     return;
   }
   if(mini){
