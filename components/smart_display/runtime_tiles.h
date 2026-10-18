@@ -6711,7 +6711,7 @@ inline void render_bedside2(Widgets &w,const Tile &t,int width,int height){
     if(i<l.keys && l.names && !names[i].empty()){
       auto *p=part_label(w,3+i,small,l.name_x[i],l.name_y[i],l.name_w[i],l.mode==BedsideLayout::COLUMN?LV_TEXT_ALIGN_LEFT:LV_TEXT_ALIGN_CENTER,names[i]);
       lv_label_set_long_mode(p,LV_LABEL_LONG_DOT);set_color(p,LV_STYLE_TEXT_COLOR,muted);set_hidden(p,false);
-    }else if(w.parts[3+i])set_hidden(w.parts[3+i]);
+    }else if(w.parts[3+i])set_hidden(w.parts[3+i],true);
   }
   // Layer 3: an optional PNG image on top of everything. `overlay_image` names an image entity or a file path.
   if(!t.overlay_image.empty()){
