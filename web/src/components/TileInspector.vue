@@ -319,14 +319,14 @@ const backgroundName = computed(() => inv.inventory.backgrounds?.[props.tile.opt
 
     <!-- A second bedside clock's wallpaper and PNG overlay (firmware dev+). -->
     <Section v-if="bedside2" :title="t('editor.tile.sections.bedside2')">
-      <PropRow v-if="!key" :label="t('editor.tile.bedside2.wallpaper')" icon="image" stack>
+      <PropRow v-if="!key" :label="t('editor.tile.bedside2.wallpaper')" stack>
         <input type="text" :value="tile.options?.wallpaper || ''" placeholder="image.bedroom_wallpaper"
-          @input="(e) => setTileOption(tile, 'wallpaper', e.target.value)" />
+          @input="(e) => setTileOption(tile, 'wallpaper', (e.target as HTMLInputElement).value)" />
         <small class="help">{{ t('editor.tile.bedside2.wallpaper_hint') }}</small>
       </PropRow>
-      <PropRow v-if="!key" :label="t('editor.tile.bedside2.overlay_image')" icon="image" stack>
+      <PropRow v-if="!key" :label="t('editor.tile.bedside2.overlay_image')" stack>
         <input type="text" :value="tile.options?.overlay_image || ''" placeholder="image.apple_logo"
-          @input="(e) => setTileOption(tile, 'overlay_image', e.target.value)" />
+          @input="(e) => setTileOption(tile, 'overlay_image', (e.target as HTMLInputElement).value)" />
         <small class="help">{{ t('editor.tile.bedside2.overlay_image_hint') }}</small>
       </PropRow>
     </Section>
