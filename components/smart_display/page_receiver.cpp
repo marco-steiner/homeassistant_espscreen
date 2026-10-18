@@ -631,7 +631,7 @@ std::string receive(const std::string &payload) {
       }
       // Any entity may stand on several tiles (firmware 0.16.0+), each its own index; the bedside clock stays one, as
       // its keys name it.
-      if (entity == "screen.nightstand") for (size_t i = 0; i < model.count; ++i)
+      if (entity == "screen.nightstand" || entity == "screen.nightstand2") for (size_t i = 0; i < model.count; ++i)
         if (i != index && model.tiles[i].received && model.tiles[i].entity == entity) return false;
       model.tiles[index].entity = entity;
     } else if (!root["o"].isNull() || !root["slot"].isNull() || !model.accepts(index, entity)) {
@@ -673,6 +673,10 @@ std::string receive(const std::string &payload) {
     const int refresh = options["refresh"].is<int>() ? options["refresh"].as<int>() : 15;
     tile.refresh = refresh == 0 || (refresh >= 5 && refresh <= 3600) ? refresh : 15;
     tile.overlay = string(options["overlay"], 8) != "none";
+    // The second bedside clock's wallpaper entity (image/camera) behind the clock, and the overlay's opacity (0-100).
+    tile.wallpaper = string(options["wallpaper"], 64);
+    tile.overlay_opacity = options["overlay_opacity"].is<int>() ? (uint8_t)std::clamp(options["overlay_opacity"].as<int>(), 0, 100) : 50;
+    tile.overlay_image = string(options["overlay_image"], 64);
     tile.energy_lines = string(options["flow"], 8) == "lines";
     // A calendar card's choices (firmware 0.56.0+): its look, when an event "starts soon", its full screen's first view.
     tile.calendar_busy_free = string(options["style"], 12) == "busy_free";

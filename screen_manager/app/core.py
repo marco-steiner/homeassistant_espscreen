@@ -20,7 +20,7 @@ import tile_icons
 DOMAINS = catalogue.DOMAINS
 # Built-in cards without a Home Assistant entity; firmware 0.2.14+ renders them. The names in English: a screen gets them in
 # its language and the editor in its own (builtin_name, app 0.2.90).
-BUILTIN = {'screen.clock': 'Clock', 'screen.nightstand': 'Bedside clock', 'screen.settings': 'Settings', 'screen.map': 'Map', 'screen.energy': 'Energy', **{f'screen.page_{n}': f'Go to page {n}' for n in range(1, 33)}}
+BUILTIN = {'screen.clock': 'Clock', 'screen.nightstand': 'Bedside clock', 'screen.nightstand2': 'Bedside clock 2', 'screen.settings': 'Settings', 'screen.map': 'Map', 'screen.energy': 'Energy', **{f'screen.page_{n}': f'Go to page {n}' for n in range(1, 33)}}
 # A navigation tile (firmware 0.2.62+): screen.page_<n> goes to page n, up to page 32 on a board that holds that many
 # (firmware 0.34.0+); whether the screen has page n is the screen's Grid's to say. Firmware 0.2.65+ takes the same one on several
 # pages (a "Back to page 1" on every page), firmware 0.16.0+ any entity on several tiles (GitHub #83) but the bedside
@@ -44,7 +44,7 @@ def builtin_name(entity, text=screen_t):
     if page:
         return text('addon.screen.builtin.page', page=page)
     # The settings tile is named like the settings page it opens.
-    if entity == 'screen.nightstand':
+    if entity == 'screen.nightstand' or entity == 'screen.nightstand2':
         return text('addon.screen.builtin.nightstand')
     if entity == MAP_TILE:
         return text('addon.screen.builtin.map')
@@ -70,13 +70,14 @@ CLOCK_DEFAULT_DISPLAY = 'dial'
 # up to three keys under them, each a tile of its own (a lamp, a temperature, a lock). It starts without a card behind
 # it, so the digits stand on the dark page at night; any background can still be chosen.
 NIGHTSTAND = 'screen.nightstand'
+NIGHTSTAND2 = 'screen.nightstand2'
 NIGHTSTAND_MIN_FIRMWARE = (0, 8, 0)
 NIGHTSTAND_KEYS = 3
 # A key is a tile without a cell of its own (app 0.4.12): in the compiled tiles it names the tile it stands under
 # (`in`, that tile's entity: the bedside clock, which is on a screen once) and its place there (`key`, from 0), and it follows the placed
 # tiles. The tiles that hold keys and how many each holds; a key takes a tile's own settings but its size, and any
 # domain but a picture, which has no round form.
-KEY_HOLDERS = {NIGHTSTAND: NIGHTSTAND_KEYS}
+KEY_HOLDERS = {NIGHTSTAND: NIGHTSTAND_KEYS, NIGHTSTAND2: NIGHTSTAND_KEYS}
 # A key's name under its circle can be hidden (`overlay`: "none", firmware 0.17.0+), as a picture's name on it can.
 KEY_OPTIONS = ('icon', 'tap', 'action', 'guard', 'overlay')
 KEY_DOMAINS = catalogue.key_domains()
@@ -1290,7 +1291,7 @@ def min_firmware(layout):
     # What each tile's type and chosen options ask (the catalogue: a type's `firmware`, an option's screen requirement
     # without an `else`), and what the layout as a whole asks.
     gates = [(True, version) for tile in tiles for version, _ in catalogue.gates(tile)] + [
-        (any(t['entity'] == NIGHTSTAND or is_key(t) for t in tiles), NIGHTSTAND_MIN_FIRMWARE),
+        (any(t['entity'] == NIGHTSTAND or t['entity'] == NIGHTSTAND2 or is_key(t) for t in tiles), NIGHTSTAND_MIN_FIRMWARE),
         (repeated_page_tiles(tiles), PAGE_TILE_REPEAT_MIN_FIRMWARE),
         (repeated_entities(tiles), ENTITY_REPEAT_MIN_FIRMWARE),
         (layout.get('title') == '', NO_TITLE_MIN_FIRMWARE),
@@ -1938,7 +1939,7 @@ def validate_layout(data, stored=False, grid=DEFAULT_GRID):
                 raise ValueError(t('addon.errors.choose_icon'))
             domain = tile['entity'].split('.')[0]
             # The bedside clock is the whole page, always, and the only tile with keys.
-            if tile['entity'] == NIGHTSTAND:
+            if tile['entity'] == NIGHTSTAND or tile['entity'] == NIGHTSTAND2:
                 options = {k: v for k, v in options.items() if k not in ('display', 'inline', 'controls', 'history_hours', 'sub')}
                 options['size'] = 'full'
             # A key takes what a tile of its own takes, but no size, face or control: its clock decides its shape.

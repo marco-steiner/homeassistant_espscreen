@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Reloj",
         "nightstand": "Reloj de mesita",
+        "nightstand2": "Reloj de mesita 2",
         "page": "Ir a la página {page}",
         "map": "Mapa",
         "energy": "Energía"

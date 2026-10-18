@@ -257,7 +257,7 @@ export function defaultOptions(id: string, covers = false): Partial<Tile> {
   // A new clock starts with the calm dial (app 0.3.12): it reads well on every size of card.
   if (id === "screen.clock") return { options: { display: "dial", size: "wide" } };
   // The bedside clock is the whole page, always, and starts without a card: its digits on the dark page (app 0.4.12).
-  if (id === "screen.nightstand") return { options: { size: "full", background: "none" } };
+  if (id === "screen.nightstand" || id === "screen.nightstand2") return { options: { size: "full", background: "none" } };
   // The map tile (app 0.4.36) starts double width, following everyone Home Assistant knows the place of.
   if (id === "screen.map") return { options: { display: "map", size: "wide" } };
   // The energy card (app 0.4.77) starts 2 x 2, the least power-flow-card-plus takes; the store takes a larger size where

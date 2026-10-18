@@ -141,6 +141,8 @@ KINDS = {
     'screen-page': {'entity': 'screen.page_2', 'state': 'ok', 'attributes': {}, 'pages': 2},
     # The bedside clock fills its page and nothing else (core.validate_layout).
     'screen-nightstand': {'entity': 'screen.nightstand', 'state': 'ok', 'attributes': {}, 'sizes': ('full',)},
+    # The second bedside clock (nightstand2) fills its page too.
+    'screen-nightstand2': {'entity': 'screen.nightstand2', 'state': 'ok', 'attributes': {}, 'sizes': ('full',)},
     # The map tile is a map and nothing else (core.validate_layout), its frame here without the picture.
     'screen-map': {'entity': 'screen.map', 'state': 'ok', 'attributes': {}, 'options': {'display': 'map'}},
     # The energy card (app 0.4.77) with a busy house: seven devices, a car charging, every source; `energy` is Home

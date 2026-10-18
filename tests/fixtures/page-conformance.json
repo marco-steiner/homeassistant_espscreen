@@ -1068,6 +1068,104 @@
     }
   },
   {
+    "name": "bedside clock and bedside clock 2",
+    "valid": true,
+    "grid": {
+      "columns": 2,
+      "rows": 3
+    },
+    "document": {
+      "title": "House",
+      "homePageId": "0000000000000001",
+      "pages": [
+        {
+          "id": "0000000000000001",
+          "navigation": {
+            "excludeFromPagination": false
+          },
+          "topbar": {
+            "title": {
+              "source": "screen"
+            },
+            "leading": [
+              {
+                "id": "home",
+                "kind": "home"
+              }
+            ],
+            "trailing": [
+              {
+                "id": "clock",
+                "type": "clock"
+              }
+            ]
+          },
+          "tiles": [
+            {
+              "id": "night1",
+              "content": {
+                "kind": "builtin",
+                "name": "nightstand"
+              },
+              "placement": {
+                "row": 0,
+                "column": 0,
+                "columns": 2,
+                "rows": 3
+              },
+              "appearance": {
+                "label": ""
+              },
+              "interaction": {}
+            }
+          ]
+        },
+        {
+          "id": "0000000000000002",
+          "navigation": {
+            "excludeFromPagination": false
+          },
+          "topbar": {
+            "title": {
+              "source": "screen"
+            },
+            "leading": [
+              {
+                "id": "home",
+                "kind": "home"
+              }
+            ],
+            "trailing": [
+              {
+                "id": "clock",
+                "type": "clock"
+              }
+            ]
+          },
+          "tiles": [
+            {
+              "id": "night2",
+              "content": {
+                "kind": "builtin",
+                "name": "nightstand2"
+              },
+              "placement": {
+                "row": 0,
+                "column": 0,
+                "columns": 2,
+                "rows": 3
+              },
+              "appearance": {
+                "label": ""
+              },
+              "interaction": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
     "name": "unknown home",
     "valid": false,
     "grid": {

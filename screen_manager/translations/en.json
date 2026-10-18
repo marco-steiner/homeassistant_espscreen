@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Clock",
         "nightstand": "Bedside clock",
+        "nightstand2": "Bedside clock 2",
         "page": "Go to page {page}",
         "map": "Map",
         "energy": "Energy"
@@ -2051,7 +2052,14 @@
       "sections": {
         "look": "Look",
         "controls": "Controls",
-        "style": "Icon and color"
+        "style": "Icon and color",
+        "bedside2": "Bedside clock 2"
+      },
+      "bedside2": {
+        "wallpaper": "Wallpaper",
+        "wallpaper_hint": "An image or camera entity whose picture fills the card behind the time.",
+        "overlay_image": "PNG image on top",
+        "overlay_image_hint": "An image entity or file path shown as a PNG on top of the time."
       },
       "keys": {
         "hint": "Drag a lamp, a temperature or a lock onto the round places under the time, or tap a place and pick one. They are tiles: tap one to set it up.",

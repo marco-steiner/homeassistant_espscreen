@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Zegar",
         "nightstand": "Zegar przy łóżku",
+        "nightstand2": "Zegar przy łóżku 2",
         "page": "Przejdź do strony {page}",
         "map": "Mapa",
         "energy": "Energia"

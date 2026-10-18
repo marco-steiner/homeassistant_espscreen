@@ -704,7 +704,7 @@ inline bool tile_picture_marquee_ready(const Widgets &w, const Tile &t);
 // tile since 0.3.3, on every size since 0.3.7 (the small square in the icon's place said too little to be of use).
 // A map (firmware 0.20.0) fills its card on every size too, with its name drawn into the picture by the app.
 // A favourite (firmware 0.24.0+) fills its card with what it plays on every size, as a live camera does.
-inline bool card_art(const Tile &t) {return (t.row_span()>1 && !t.full && t.cover_tile()) || t.live() || t.is_map() || (t.favorite() && t.pictured());}
+inline bool card_art(const Tile &t) {return (t.row_span()>1 && !t.full && t.cover_tile()) || t.live() || t.is_map() || (t.favorite() && t.pictured()) || t.is_bedside2();}
 // All icon fonts carry the same generated glyph set, so the first bound one answers for all.
 inline bool has_icon_glyph(uint32_t codepoint) {
   for (auto &w : widgets) if (w.icon_font) { lv_font_glyph_dsc_t dsc; return lv_font_get_glyph_dsc(w.icon_font, &dsc, codepoint, 0); }
@@ -6666,6 +6666,63 @@ inline void render_bedside(Widgets &w,const Tile &t,int width,int height){
     }else if(w.parts[3+i])set_hidden(w.parts[3+i],true);
   }
 }
+// The second bedside clock (nightstand2): like the bedside clock, but with a wallpaper picture behind it
+// and an optional PNG image on top of the clock (Apple-style). Layer 1: wallpaper picture (full card, placed by
+// tile_picture_place behind w.extra). Layer 2: the time. Layer 3: the PNG image from `overlay_image`, drawn last
+// so it sits on top of the time.
+inline void render_bedside2(Widgets &w,const Tile &t,int width,int height){
+  begin_extra(w,"bedside",width,height);
+  // Layer 1: wallpaper picture. card_art makes t.wallpaper fill the card; tile_picture_place puts it behind w.extra.
+  // Until a picture arrives, a dark panel stands in so the time stays readable.
+  if(t.wallpaper.empty()){
+    auto *panel=lv_obj_create(w.extra);
+    lv_obj_set_size(panel,width,height);
+    lv_obj_set_style_bg_color(panel,lv_color_hex(0x1a1a1a),0);
+    lv_obj_set_style_bg_opa(panel,LV_OPA_COVER,0);
+    lv_obj_remove_flag(panel,LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_remove_flag(panel,LV_OBJ_FLAG_SCROLLABLE);
+  }
+  // Layer 2: the clock, exactly as the first bedside clock draws it.
+  auto now=now_time?now_time():esphome::ESPTime{};
+  const int pad=lv_obj_get_style_space_top(w.tile,LV_PART_MAIN);
+  const auto names=bedside_names(w.index);
+  const auto l=bedside_layout(width,height,pad,names);
+  const lv_font_t *font=bedside_digits(),*small=small_font?small_font:w.value_font;
+  const std::string time=time_text(now),ampm=am_pm(now);
+  const auto ink=theme::color(theme::BEDSIDE),muted=theme::color(theme::MUTED);
+  if(l.mode==BedsideLayout::STACK){
+    const size_t colon=time.find(':');
+    digit_label(w,0,font,l.digits_x,l.digits_y,l.digits_w,LV_TEXT_ALIGN_CENTER,time.substr(0,colon));
+    digit_label(w,1,font,l.digits_x,l.digits_y+l.digit_h+l.line_gap,l.digits_w,LV_TEXT_ALIGN_CENTER,colon==std::string::npos?"":time.substr(colon+1));
+    set_hidden(w.parts[1],false);
+  }else{
+    digit_label(w,0,font,l.digits_x,l.digits_y,l.digits_w,LV_TEXT_ALIGN_CENTER,time);
+    if(w.parts[1])set_hidden(w.parts[1],true);
+  }
+  set_color(w.parts[0],LV_STYLE_TEXT_COLOR,ink);if(w.parts[1])set_color(w.parts[1],LV_STYLE_TEXT_COLOR,ink);
+  if(!ampm.empty()){
+    const int tw=text_width(l.mode==BedsideLayout::STACK?time.substr(time.find(':')+1):time,font);
+    const int last=l.mode==BedsideLayout::STACK?l.digits_y+2*l.digit_h+l.line_gap:l.digits_y+l.digit_h;
+    const int aw=text_width(ampm,small)+2,end=l.digits_x+(l.digits_w+tw)/2;
+    auto *p=digit_label(w,2,small,end-aw,last+ui::px(10),aw,LV_TEXT_ALIGN_LEFT,ampm);
+    set_color(p,LV_STYLE_TEXT_COLOR,muted);set_hidden(p,false);
+  }else if(w.parts[2])set_hidden(w.parts[2],true);
+  for(unsigned i=0;i<BEDSIDE_KEYS;++i){
+    if(i<l.keys && l.names && !names[i].empty()){
+      auto *p=part_label(w,3+i,small,l.name_x[i],l.name_y[i],l.name_w[i],l.mode==BedsideLayout::COLUMN?LV_TEXT_ALIGN_LEFT:LV_TEXT_ALIGN_CENTER,names[i]);
+      lv_label_set_long_mode(p,LV_LABEL_LONG_DOT);set_color(p,LV_STYLE_TEXT_COLOR,muted);set_hidden(p,false);
+    }else if(w.parts[3+i])set_hidden(w.parts[3+i]);
+  }
+  // Layer 3: an optional PNG image on top of everything. `overlay_image` names an image entity or a file path.
+  if(!t.overlay_image.empty()){
+    auto *img=lv_image_create(w.extra);
+    lv_image_set_src(img,t.overlay_image.c_str());
+    lv_obj_set_size(img,LV_SIZE_CONTENT,LV_SIZE_CONTENT);
+    lv_obj_center(img);
+    lv_obj_remove_flag(img,LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_remove_flag(img,LV_OBJ_FLAG_SCROLLABLE);
+  }
+}
 inline void render_clock(Widgets &w,const Tile &t,bool large,int width,int height) {
   if(t.display=="dial"||t.display=="flip"){
     // A part made on this render has no colour yet: the palette pass paints it (it runs after this, on a change).
@@ -8370,6 +8427,7 @@ inline void render_slot(size_t slot) {
   lap(swipe_profile::TEXT);
   // Cards that replace the name/status layout entirely.
   bool bedside=t.is_bedside() && w.full;
+  bool bedside2=t.is_bedside2() && w.full;
   bool clock=t.is_clock(), forecast=d=="weather" && t.display=="forecast" && w.wide && t.extra().forecast.size()>0 && fresh() && t.available();
   bool sunpath=d=="sun" && t.display=="sunpath" && w.wide && !t.extra().sunrise.empty() && !t.extra().sunset.empty() && fresh() && t.available();
   bool graph=d=="sensor" && t.display=="graph" && t.has_history && !clock;
@@ -8399,7 +8457,7 @@ inline void render_slot(size_t slot) {
   lap(swipe_profile::BUSY);
   for(auto *o:{w.title,w.value,w.circle,w.unit})set_hidden(o,custom);  // a big-value card on a short cell hides its circle again below
   if(!w.key)set_hidden(w.icon,plugin);  // a key that showed a value hid its icon; a plugin tile draws its own
-  if(custom && w.picture)lv_obj_add_flag(w.picture,LV_OBJ_FLAG_HIDDEN);
+  if(custom && !bedside2 && w.picture)lv_obj_add_flag(w.picture,LV_OBJ_FLAG_HIDDEN);
   if(w.key){
     // A key of a bedside clock: the card is the key, round, with the tile's icon in the middle, or its value where
     // the value is what it is for (a temperature). Its name stands under it, drawn by its clock (render_bedside).
@@ -8474,7 +8532,8 @@ inline void render_slot(size_t slot) {
     // centred tall card) stays on it for the next tile to inherit (firmware 0.3.2).
     set_font(w.title,w.title_font);set_text_align(w.title,LV_TEXT_ALIGN_LEFT);set_text_align(w.value,LV_TEXT_ALIGN_LEFT);
     lap(swipe_profile::GEOMETRY);
-    if(bedside)render_bedside(w,t,content_w,content_h);
+    if(bedside2)render_bedside2(w,t,content_w,content_h);
+    else if(bedside)render_bedside(w,t,content_w,content_h);
     else if(clock)render_clock(w,t,large_tile,content_w,content_h);
     else if(sunpath)render_sunpath(w,t,large_tile,content_w,content_h);
     else render_forecast(w,t,large_tile,content_w,content_h);

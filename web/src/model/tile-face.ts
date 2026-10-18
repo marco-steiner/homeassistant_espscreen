@@ -121,7 +121,7 @@ export function tileFace(input: FaceInput): Face {
 // In the order the screen decides it: what replaces the name and its line first, then the card's own layouts.
 function faceKind(input: FaceInput, face: Omit<Face, "kind">): FaceKind {
   const { entity, shape } = input, { domain, display } = face;
-  if (entity === "screen.nightstand") return "bedside";
+  if (entity === "screen.nightstand" || entity === "screen.nightstand2") return "bedside";
   if (input.plugin) return input.pluginRow ? "plugin-live" : "plugin";
   if (entity === "screen.energy") return "energy";
   if (display === "analog") return "analog";

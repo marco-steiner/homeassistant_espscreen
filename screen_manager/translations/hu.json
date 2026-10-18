@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Óra",
         "nightstand": "Éjjeliszekrény-óra",
+        "nightstand2": "Éjjeliszekrény-óra 2",
         "page": "Ugrás: {page}. oldal",
         "map": "Térkép",
         "energy": "Energia"

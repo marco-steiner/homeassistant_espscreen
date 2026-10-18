@@ -425,10 +425,12 @@
     "energy",
     "map",
     "nightstand",
+    "nightstand2",
     "settings"
   ],
   "keyHolders": {
-    "screen.nightstand": 3
+    "screen.nightstand": 3,
+    "screen.nightstand2": 3
   },
   "keyDomains": [
     "alarm_control_panel",

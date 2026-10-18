@@ -83,7 +83,8 @@ const caps = computed(() => entities.capabilities[props.tile.entity]);
 const current = (key: string, fallback: unknown) => props.tile.options?.[key] ?? fallback;
 // The bedside clock (app 0.4.12): always the whole page, with no face to pick. Its keys are tiles of their own, set here
 // like any tile but for what their clock decides for them: their size, their page and their card's colour.
-const bedside = computed(() => props.tile.entity === "screen.nightstand");
+const bedside = computed(() => props.tile.entity === "screen.nightstand" || props.tile.entity === "screen.nightstand2");
+const bedside2 = computed(() => props.tile.entity === "screen.nightstand2");
 const key = computed(() => props.tile.in !== undefined);
 // What the panel's choices are worked out from (model/tile-options.ts): what Home Assistant says the entity can do, the
 // screen's firmware and board, the domain's control sets, and what the entity reports now.
@@ -314,6 +315,20 @@ const backgroundName = computed(() => inv.inventory.backgrounds?.[props.tile.opt
         :model-value="inline === 'slider'" @update:model-value="(on) => setTileOption(tile, 'inline', on ? 'slider' : 'none')">
         <small v-if="sliderWarn" class="warn">{{ t("editor.tile.slider.nothing") }}</small>
       </SwitchRow>
+    </Section>
+
+    <!-- A second bedside clock's wallpaper and PNG overlay (firmware dev+). -->
+    <Section v-if="bedside2" :title="t('editor.tile.sections.bedside2')">
+      <PropRow v-if="!key" :label="t('editor.tile.bedside2.wallpaper')" icon="image" stack>
+        <input type="text" :value="tile.options?.wallpaper || ''" placeholder="image.bedroom_wallpaper"
+          @input="(e) => setTileOption(tile, 'wallpaper', e.target.value)" />
+        <small class="help">{{ t('editor.tile.bedside2.wallpaper_hint') }}</small>
+      </PropRow>
+      <PropRow v-if="!key" :label="t('editor.tile.bedside2.overlay_image')" icon="image" stack>
+        <input type="text" :value="tile.options?.overlay_image || ''" placeholder="image.apple_logo"
+          @input="(e) => setTileOption(tile, 'overlay_image', e.target.value)" />
+        <small class="help">{{ t('editor.tile.bedside2.overlay_image_hint') }}</small>
+      </PropRow>
     </Section>
     </template>
 

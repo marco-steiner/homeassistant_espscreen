@@ -190,8 +190,8 @@ inline bool valid_entity(const std::string &entity) {
   if (domain == "screen") {
     // screen.map (firmware 0.21.0+): the map of the screen's own cards, a picture the app draws. screen.energy
     // (firmware 0.47.0+): the house's power, Home Assistant's energy distribution live (energy_card.h).
-    if (entity == "screen.clock" || entity == "screen.settings" || entity == "screen.nightstand" || entity == "screen.map" ||
-        entity == "screen.energy") return true;
+    if (entity == "screen.clock" || entity == "screen.settings" || entity == "screen.nightstand" || entity == "screen.nightstand2" ||
+        entity == "screen.map" || entity == "screen.energy") return true;
     return page_entity(entity) && page_number(entity) <= grid.pages();
   }
   // The types the tile catalogue has (catalogue/*.yaml, tile_catalogue.h): the same list the add-on and the editor take.
@@ -477,6 +477,12 @@ struct Tile {
   bool has_hs_color = false;
   int saturation = 0;
   std::string tap = "auto", display = "standard", inline_control = "none", guard = "confirm";
+  // The second bedside clock's wallpaper entity (image/camera) behind the clock (firmware dev+).
+  std::string wallpaper;
+  // The second bedside clock's overlay opacity, 0-100 (firmware dev+).
+  uint8_t overlay_opacity = 50;
+  // The second bedside clock's PNG image on top of the clock (firmware dev+).
+  std::string overlay_image;
   // What the second line says (firmware 0.2.90+), as the option was stored: "auto" is the line the screen works
   // out itself, "none" leaves it empty, "text:<words>" says those words, and "attr:<name>" says a value of this
   // entity that Home Assistant itself names. Only the last one needs an answer from the app: the other three
@@ -521,7 +527,7 @@ struct Tile {
   // picture over the card where the board draws pictures. Never a whole page: the player's card is that.
   bool favorite() const { return display == "favorite" && domain() == "media_player" && !full; }
   // A tile that draws its picture out of the page's strip (runtime_tiles.h, live_*).
-  bool pictured() const { return live() || cover_tile() || is_map() || (favorite() && !extra().fav_mark.empty()); }
+  bool pictured() const { return live() || cover_tile() || is_map() || (favorite() && !extra().fav_mark.empty()) || is_bedside2(); }
   // Double width takes a row; full (firmware 0.2.62+) takes the whole page, all six slots, and is also wide.
   bool wide = false, full = false;
   uint8_t height = 1;  // Row span; independent of the card design and page height.
@@ -673,7 +679,10 @@ struct Tile {
   bool is_clock() const { return entity == "screen.clock"; }
   bool is_settings() const { return entity == "screen.settings"; }
   // The bedside clock (firmware 0.8.0+): the time as large as the page allows, with its keys under it.
-  bool is_bedside() const { return entity == "screen.nightstand"; }
+  // screen.nightstand2 is a second bedside clock with the same look, plus an optional wallpaper behind it
+  // and a semi-transparent overlay over it (firmware dev+).
+  bool is_bedside() const { return entity == "screen.nightstand" || entity == "screen.nightstand2"; }
+  bool is_bedside2() const { return entity == "screen.nightstand2"; }
   // A navigation tile (screen.page_<n>, firmware 0.2.62+) and the page it goes to, counted from one.
   bool is_page() const { return page_entity(entity); }
   int page_target() const { return static_cast<int>(page_number(entity)); }

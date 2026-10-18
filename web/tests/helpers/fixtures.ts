@@ -31,8 +31,8 @@ export function documentFixture(view: Layout, grid = testGrid): PageDocument {
     const o = tile.options || {}, destination = /^screen\.page_(\d+)$/.exec(tile.entity);
     const content: PageTile["content"] = destination
       ? { kind: "navigation", target: { kind: "page", pageId: layout.pages[Number(destination[1]) - 1].id } }
-      : tile.entity === "screen.clock" || tile.entity === "screen.settings" || tile.entity === "screen.nightstand"
-        ? { kind: "builtin", name: tile.entity.slice(7) as "clock" | "nightstand" | "settings" }
+      : tile.entity === "screen.clock" || tile.entity === "screen.settings" || tile.entity === "screen.nightstand" || tile.entity === "screen.nightstand2"
+        ? { kind: "builtin", name: tile.entity.slice(7) as "clock" | "nightstand" | "nightstand2" | "settings" }
         : { kind: "entity", entityId: tile.entity };
     const appearance: PageTile["appearance"] = { label: tile.name }, interaction: PageTile["interaction"] = {};
     if (o.size === "wide" || o.size === "full") appearance.presentation = o.size;

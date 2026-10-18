@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Uhr",
         "nightstand": "Nachttischuhr",
+        "nightstand2": "Nachttischuhr 2",
         "page": "Zu Seite {page}",
         "map": "Karte",
         "energy": "Energie"
@@ -2412,7 +2413,14 @@
       "sections": {
         "look": "Aussehen",
         "controls": "Bedienung",
-        "style": "Symbol und Farbe"
+        "style": "Symbol und Farbe",
+        "bedside2": "Nachttischuhr 2"
+      },
+      "bedside2": {
+        "wallpaper": "Hintergrundbild",
+        "wallpaper_hint": "Eine Bild- oder Kamera-Entität, deren Bild die Karte hinter der Uhrzeit füllt.",
+        "overlay_image": "PNG-Bild oben",
+        "overlay_image_hint": "Eine Bild-Entität oder ein Dateipfad, der als PNG über der Uhrzeit angezeigt wird."
       },
       "keys": {
         "hint": "Ziehe eine Lampe, eine Temperatur oder ein Schloss auf die runden Plätze unter der Uhrzeit, oder tippe auf einen Platz und wähle eine aus. Es sind Kacheln: Tippe eine an, um sie einzurichten.",

@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Klok",
         "nightstand": "Nachtkastjesklok",
+        "nightstand2": "Nachtkastjesklok 2",
         "page": "Ga naar pagina {page}",
         "map": "Kaart",
         "energy": "Energie"

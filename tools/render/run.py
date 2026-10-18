@@ -957,6 +957,24 @@ class Run:
         await self.render('bedside')
         return checks
 
+    async def bedside_clock2(self, grid):
+        """The second bedside clock (nightstand2) over its page with three keys, the same as bedside_clock but for the
+        screen.nightstand2 entity (firmware dev+)."""
+        states = {**send_layout.demo_states(MOMENT), **send_layout.controls_states(MOMENT),
+                  'lock.demo_front': {'state': 'locked', 'attributes': {'friendly_name': 'Front door'}}}
+        tiles = [dict(entity='screen.nightstand2', name='', slot=0, options={'size': 'full', 'background': 'none'}),
+                 *(dict(entity=entity, name=name, key=place, **{'in': 'screen.nightstand2'}) for place, (entity, name) in
+                   enumerate([('light.demo', 'Lamp'), ('sensor.demo_temperature', 'Bedroom'), ('lock.demo_front', 'Front door')]))]
+        record = send_layout.migrate_legacy(dict(title='Bedroom 2', tiles=tiles), grid)
+        values = [send_layout.state_message(i, tile, states) for i, tile in enumerate(send_layout.compile_tiles(record['layout'], grid))]
+        region = dict(keepalive=120, clock_24h=True, numbers='point', group_min=1, percent_space=False)
+        await self.sender.synchronize(self.inbox.object_id, record, region, values, [[{'k': 'clock'}]])
+        checks = await self.self_test()
+        await self.call('render_page', page=0)
+        await self.page_done(0)
+        await self.render('bedside2')
+        return checks
+
     async def alarm_probe(self):
         start = len(self.lines)
         await self.call('render_alarm')
@@ -2850,6 +2868,8 @@ class Run:
             return 1, await self.remote_panel(grid)
         if self.only == 'bedside':
             return 1, await self.bedside_clock(grid)
+        if self.only == 'bedside2':
+            return 1, await self.bedside_clock2(grid)
         if self.only == 'media':
             return 1, await self.media_panel(grid)
         if self.only == 'saver':
@@ -2895,6 +2915,7 @@ class Run:
         checks += await self.detail_navigation(grid, entities)
         checks += await self.rectangular_tiles(grid)
         checks += await self.bedside_clock(grid)
+        checks += await self.bedside_clock2(grid)
         checks += await self.alarm_panel(grid)
         return pages, checks
 

@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Orologio",
         "nightstand": "Orologio da comodino",
+        "nightstand2": "Orologio da comodino 2",
         "page": "Vai alla pagina {page}",
         "map": "Mappa",
         "energy": "Energia"

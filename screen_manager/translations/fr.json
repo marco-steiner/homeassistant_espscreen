@@ -1352,6 +1352,7 @@
       "builtin": {
         "clock": "Horloge",
         "nightstand": "Horloge de chevet",
+        "nightstand2": "Horloge de chevet 2",
         "page": "Aller à la page {page}",
         "map": "Carte",
         "energy": "Énergie"
