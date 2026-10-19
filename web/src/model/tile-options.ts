@@ -80,6 +80,13 @@ export function canonicalOptions(entity: string, options: TileOptions = {}, key 
   if (entity !== MAP_TILE) delete out.follow;
   // How power shows along a line is the energy card's own (catalogue/screen.yaml `energy`).
   if (entity !== "screen.energy") delete out.flow;
+  // A bedside clock keeps its wallpaper; nightstand2 also keeps its overlay image (firmware dev+).
+  if (entity === "screen.nightstand" || entity === "screen.nightstand2") {
+    // wallpaper and overlay_image are kept for nightstand2; nothing to drop here.
+  } else {
+    delete out.wallpaper;
+    delete out.overlay_image;
+  }
   // A calendar card keeps its choices (firmware 0.56.0); no other tile has them, and an empty list is none.
   if (!entity.startsWith("calendar.")) for (const field of CALENDAR_OWN) delete out[field];
   for (const field of ["calendars", "places", "words", "hide_words"]) if (Array.isArray(out[field]) && !(out[field] as unknown[]).length) delete out[field];
